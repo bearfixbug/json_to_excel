@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="filesaver.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+</head>
+<body>
+    <button onclick="exportexcel()">export excel</button>
+</body>
+</html>
+
+<script>
+        const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const EXCEL_EXTENSION = '.xlsx';
+        function saveAsExcel(buffer, filename) {
+            const data = new Blob([buffer], {type: EXCEL_TYPE});
+            saveAs(data, filename+'_export_'+new Date().getTime()+EXCEL_EXTENSION)
+        }
+
+        function exportexcel() {
+            var data = [];
+            for(var i=0; i<$(".rowexcel").length; i++) {
+                if($(`.checkonly${i}`).is(':checked')) {
+                    var obj = {
+                        "bookingno": filter[i].bookingid,
+                        "fullname": filter[i].name,
+                        "price": filter[i].priceroom,
+                        "customeremail": filter[i].emailcus,
+                        "checkin": filter[i].checkin,
+                        "checkout": filter[i].checkout,
+                        "guest": filter[i].guest,
+                        "deposit_rate": filter[i].paymentdepot,
+                        "payment_amount": filter[i].payment/100,
+                        "commission_fee": '5%',
+                        "commission_amount": (filter[i].payment/100)*(5/100),
+                        "payment_to_hotel": parseInt(filter[i].payment/100) - ((parseInt(filter[i].payment/100) * 5)/100),
+                        "hotel_name": filter[i].hotelname,
+                        "payment_date": filter[i].paymentdate,
+                    }
+                    data.push(obj)
+                }
+            }
+            // const data = filter;
+
+            
+
+            const worksheet = XLSX.utils.json_to_sheet(data)
+            const workbook = {
+                Sheets: {
+                    'data': worksheet
+                },
+                SheetNames: ['data']
+            };
+            const excelBuffer = XLSX.write(workbook, {bookType: 'xlsx', type: 'array'});
+            console.log(excelBuffer)
+            saveAsExcel(excelBuffer, 'myFile')
+        }
+</script>
